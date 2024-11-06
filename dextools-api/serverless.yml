@@ -1,0 +1,202 @@
+service: dextools-api
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  environment:
+    TOKENS_TABLE: tokens-table
+    PAIRS_TABLE: pairs-table
+    PGHOST: ${param:PGHOST}
+    PGUSER: ${param:PGUSER}
+    PGDATABASE: ${param:PGDATABASE}
+    PGPASSWORD: ${param:PGPASSWORD}
+    PGPORT: 5432
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - rds-db:connect
+      Resource: arn:aws:rds:us-east-1:283169336544:db-proxy:prx-0b51bb42d90f6a22f
+  vpc:
+    securityGroupIds:
+      - sg-029df8e48faf39ec5
+    subnetIds:
+      - subnet-0ba99baf55334aa37
+      - subnet-0e2f1f8fb76211642
+      - subnet-040dc7170e0e988f0
+      - subnet-061925e9b651a9fd1
+
+functions:
+  accountBalanceChart:
+    handler: handler.getAccountBalanceChartHandler
+    description: returns account balance chart for specified period
+    events:
+      - http:
+          path: /api/account-balance-chart
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  accountTransactionHistory:
+    handler: handler.getAccountTransactionHistoryHandler
+    description: returns account transaction history for specific period
+    events:
+      - http:
+          path: /api/account-transaction-history
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  getPerformanceSummary:
+    handler: handler.getPerformanceSummaryHandler
+    description: returns performance summary for specific period
+    events:
+      - http:
+          path: /api/performance-summary
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+          caching:
+            enabled: true
+            ttlInSeconds: 900
+            cacheKeyParameters:
+              - name: request.querystring.interval
+  pairs:
+    handler: handler.getPairsHandler
+    description: returns all the pairs available or specific pair
+    events:
+      - http:
+          path: /api/pairs
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  transaction:
+    handler: handler.getTransactionsHandler
+    description: return transactions for dexscan
+    events:
+      - http:
+          path: /api/transactions
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*" # <-- Specify
+            allowCredentials: false
+  getQuote:
+    handler: handler.getQuoteHandler
+    description: get fiat on ramp quote
+    events:
+      - http:
+          path: /api/fiat-on-ramp/quote
+          method: post
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*" # <-- Specify
+            allowCredentials: false
+  getFiatCurrencyLimits:
+    handler: handler.getFiatCurrencyLimitsHandler
+    description: get fiat on ramp currency limits
+    timeout: 200
+    events:
+      - http:
+          path: /api/fiat-on-ramp/currencies
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*" # <-- Specify
+            allowCredentials: false
+  config:
+    handler: handler.getConfigHandler
+    description: udf config handler
+    events:
+      - http:
+          path: /config
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  symbols:
+    handler: handler.getSymbolsHandler
+    description: udf symbols handler
+    events:
+      - http:
+          path: /symbols
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  search:
+    handler: handler.searchHandler
+    description: udf search handler
+    events:
+      - http:
+          path: /search
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  history:
+    handler: handler.getHistoryHandler
+    description: udf hisotry handler
+    events:
+      - http:
+          path: /history
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: "*"
+            allowCredentials: false
+  pairsUpdaterHandler:
+    handler: handler.pairsUpdaterHandler
+    timeout: 120
+    events:
+      - schedule:
+          rate: rate(5 minutes)
+
+resources:
+  Resources:
+    cacheTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: pairs-table
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-offline
+  - serverless-api-gateway-caching
+
+custom:
+  apiGatewayCaching:
+    enabled: true
+    clusterSize: "0.5"
+    ttlInSeconds: 900
+    perKeyInvalidation:
+      requireAuthorization: true

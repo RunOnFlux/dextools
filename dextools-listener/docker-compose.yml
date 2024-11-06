@@ -1,0 +1,24 @@
+services:
+  dextools-listener:
+    container_name: dextools-listener
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PGHOST=dextools-postgres
+      - PGUSER=${POSTGRES_USER}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - PGDATABASE=${POSTGRES_DB}
+      - PGPORT=5432
+      - NODE_ENV=development
+      - TZ=Etc/UTC
+      - CHAINWEB_HOST=https://kadena.dapp.runonflux.io
+    networks:
+      - dextools_network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+networks:
+  dextools_network:
+    external: true

@@ -1,0 +1,37 @@
+{
+  "name": "price-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kadefi/price-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kadefi/price-server/issues"
+  },
+  "homepage": "https://github.com/kadefi/price-server#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "axios-retry": "^3.3.1",
+    "bignumber": "^1.1.0",
+    "bignumber.js": "^9.1.0",
+    "dotenv": "^16.0.2",
+    "eventsource": "^2.0.2",
+    "luxon": "^3.0.4",
+    "pg": "^8.8.0",
+    "pg-format": "^1.0.4",
+    "uuid": "^9.0.0",
+    "ws": "^8.8.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.6",
+    "utf-8-validate": "^5.0.9"
+  }
+}

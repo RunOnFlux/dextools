@@ -1,0 +1,206 @@
+{
+  "FLUX": {
+    "totalSupply": 440000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://runonflux.io/"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/zelhub"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/runonflux"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.gg/keVn3HDKZw"
+      }
+    ]
+  },
+  "KDL": {
+    "totalSupply": 100000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://www.kdlaunch.com/"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/KDLaunchOfficial"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/KdLaunch"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.com/invite/GghUdhmk6z"
+      }
+    ]
+  },
+  "KDS": {
+    "totalSupply": 250000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://www.kdswap.exchange/"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/KDSwapOfficial"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/KDSwap"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.com/invite/GghUdhmk6z"
+      }
+    ]
+  },
+  "HYPE": {
+    "totalSupply": 10000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://hypercent.io/"
+      },
+      {
+        "type": "telegram",
+        "url": "http://t.me/HyperCent"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/hypercentpad"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.gg/dxVvdNhqaE"
+      }
+    ]
+  },
+  "MOK": {
+    "totalSupply": 50000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "http://themok.io/"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/TheMinersofKadenia"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/MinersOfKadenia"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.gg/theminersofkadenia"
+      }
+    ]
+  },
+  "KDX": {
+    "totalSupply": 1000000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://ecko.finance"
+      },
+      {
+        "type": "github",
+        "url": "https://github.com/eckoDAO-org"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/eckoDAO"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.gg/eckodao"
+      }
+    ]
+  },
+  "KISHK": {
+    "totalSupply": 1000000000000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://kishuken.fun"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/kishukens"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/kishuken_kda"
+      }
+    ]
+  },
+  "KAPY": {
+    "totalSupply": 1000000000000
+  },
+  "ARKD": {
+    "totalSupply":1000000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://www.arkade.fun/"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/ArkadeFun"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.com/invite/r4EYvzXTFy"
+      }
+    ]
+  },
+  "KAYC": {
+    "totalSupply": 4000000000
+  },
+  "DOC": {
+    "totalSupply": 1000000000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://docushield.app/"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/Docushield"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.gg/sBc7YQ9UrA"
+      },
+      {
+        "type": "telegram",
+        "url": "https://t.me/docuchat"
+      }
+    ]
+  },
+  "WIZA": {
+    "totalSupply": 13240000,
+    "socials": [
+      {
+        "type": "website",
+        "url": "https://www.wizardsarena.net/"
+      },
+      {
+        "type": "twitter",
+        "url": "https://twitter.com/WizardsArena"
+      },
+      {
+        "type": "discord",
+        "url": "https://discord.com/invite/5vK5frRHMj"
+      }
+    ]
+  }
+}

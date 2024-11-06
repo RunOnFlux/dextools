@@ -1,0 +1,30 @@
+{
+  "name": "dexscan-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "kadefi.money",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.245.0",
+    "@aws-sdk/lib-dynamodb": "^3.245.0",
+    "@aws-sdk/rds-signer": "^3.258.0",
+    "@kadena/cryptography-utils": "^0.4.2",
+    "axios": "^1.2.2",
+    "dotenv": "^16.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.2.1",
+    "node-fetch": "^3.3.0",
+    "pg": "^8.8.0",
+    "pg-format": "^1.0.4",
+    "serverless-offline": "^12.0.4",
+    "zipson": "^0.2.12"
+  },
+  "devDependencies": {
+    "serverless-api-gateway-caching": "^1.10.3"
+  }
+}

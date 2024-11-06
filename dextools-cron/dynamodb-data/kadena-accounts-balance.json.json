@@ -1,0 +1,44 @@
+{
+  "Table": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "account",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "date",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "kadena-accounts-balance",
+    "KeySchema": [
+      {
+        "AttributeName": "account",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "date",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2024-03-18T14:30:59.187000+01:00",
+    "ProvisionedThroughput": {
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 0,
+      "WriteCapacityUnits": 0
+    },
+    "TableSizeBytes": 705567462,
+    "ItemCount": 51801,
+    "TableArn": "arn:aws:dynamodb:us-east-1:283169336544:table/kadena-accounts-balance",
+    "TableId": "edc98864-9799-4d78-872b-519478536f30",
+    "BillingModeSummary": {
+      "BillingMode": "PAY_PER_REQUEST",
+      "LastUpdateToPayPerRequestDateTime": "2024-03-18T14:45:51.546000+01:00"
+    },
+    "TableClassSummary": {
+      "TableClass": "STANDARD"
+    },
+    "DeletionProtectionEnabled": false
+  }
+}
