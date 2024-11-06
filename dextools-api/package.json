@@ -14,7 +14,7 @@
     "@aws-sdk/lib-dynamodb": "^3.245.0",
     "@aws-sdk/rds-signer": "^3.258.0",
     "@kadena/cryptography-utils": "^0.4.2",
-    "axios": "^1.2.2",
+    "axios": "^1.7.7",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.2.1",
