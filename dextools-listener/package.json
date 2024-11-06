@@ -24,7 +24,7 @@
     "bignumber.js": "^9.1.0",
     "dotenv": "^16.0.2",
     "eventsource": "^2.0.2",
-    "luxon": "^3.0.4",
+    "luxon": "^3.2.1",
     "pg": "^8.8.0",
     "pg-format": "^1.0.4",
     "uuid": "^9.0.0",
