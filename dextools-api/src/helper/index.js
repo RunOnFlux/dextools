@@ -1,30 +1,20 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { GetCommand } = require("@aws-sdk/lib-dynamodb");
+// src/utils/helpers.js
 const { parse } = require("zipson/lib");
-const CACHE_TABLE = process.env.PAIRS_TABLE || false;
-const { Pool } = require("pg");
-const dotenv = require("dotenv");
-dotenv.config();
-
-const ddbClient = new DynamoDBClient({
-  region: "us-east-1",
-  endpoint: process.env.AWS_ENDPOINT || undefined,
-});
+const { mongoConnect } = require("../../clients/mongo");
 
 const getTickerFromID = (id) => id.substring(id.indexOf(":") + 1);
 
 const getAllPairs = async () => {
-  const item = {
-    TableName: CACHE_TABLE,
-    Key: {
-      id: "PAIRS",
-    },
-  };
+  try {
+    const { db } = await mongoConnect();
+    const result = await db.collection("pairs").findOne({ id: "PAIRS" });
+    if (!result) return [];
 
-  const value = await ddbClient.send(new GetCommand(item));
-  const { Item } = value;
-  const { cachedValue } = Item;
-  return parse(cachedValue);
+    return parse(result.cachedValue);
+  } catch (error) {
+    console.error("Error getting pairs:", error);
+    throw error;
+  }
 };
 
 const getSymbol = (symbol) => {
@@ -39,7 +29,7 @@ const getSymbol = (symbol) => {
   };
 };
 
-const supported_resolutions = [
+const SUPPORTED_RESOLUTIONS = [
   "1",
   "3",
   "5",
@@ -53,44 +43,9 @@ const supported_resolutions = [
   "1M",
 ];
 
-const addHeader = (response) => {
-  response.headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json",
-  };
-  return response;
-};
-
-const buildResponse = (statusCode, body) => {
-  return {
-    statusCode,
-    body: JSON.stringify(body),
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
-  };
-};
-
-const getPGClient = async (signer, size = 2) => {
-  const pgClient = new Pool({
-    host: process.env.PGHOST,
-    port: 5432,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    database: process.env.PGDATABASE,
-    max: size,
-  });
-  await pgClient.connect();
-  return pgClient;
-};
-
 module.exports = {
   getTickerFromID,
   getAllPairs,
   getSymbol,
-  supported_resolutions,
-  buildResponse,
-  addHeader,
-  getPGClient,
+  SUPPORTED_RESOLUTIONS,
 };

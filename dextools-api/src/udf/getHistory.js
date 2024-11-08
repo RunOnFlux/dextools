@@ -1,6 +1,7 @@
 const { DateTime } = require("luxon");
 const dotenv = require("dotenv");
-const { getSymbol, getPGClient } = require("../helper");
+const { getSymbol } = require("../helper");
+const { connectPg } = require("../../clients/pg");
 dotenv.config();
 
 const getInterval = (interval) => {
@@ -74,7 +75,7 @@ GROUP BY ticker, date_trunc('hour', timestamp) + (((date_part('minute', timestam
 `;
 
 const getHistory = async (queryParams, signer) => {
-  const pgClient = await getPGClient(signer, 5);
+  const pgClient = await connectPg();
   const { symbol, from, to, resolution, countback } = queryParams;
   const { ticker } = getSymbol(symbol);
   const interval = getInterval(resolution);
@@ -108,10 +109,11 @@ const getHistory = async (queryParams, signer) => {
       toDate.toJSDate(),
     ]);
   } else {
-    bars = await pgClient.query(
-      getBarsQueryCustom(intervalValue),
-      [ticker, queryFrom, toDate.toJSDate()]
-    );
+    bars = await pgClient.query(getBarsQueryCustom(intervalValue), [
+      ticker,
+      queryFrom,
+      toDate.toJSDate(),
+    ]);
   }
   if (bars.rowCount === 0) {
     return {

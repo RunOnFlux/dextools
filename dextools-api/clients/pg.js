@@ -1,4 +1,4 @@
-const { Client } = require('pg');
+const { Client } = require("pg");
 
 let client = null;
 
@@ -9,7 +9,7 @@ function connectPg() {
       database: process.env.POSTGRES_DB,
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
-      ssl: process.env.POSTGRES_SSL === 'true',
+      ssl: process.env.POSTGRES_SSL === "true",
     });
     client.connect();
   }
@@ -24,11 +24,11 @@ async function closePg() {
 }
 
 async function query(text, params) {
-  const client = await connect();
+  const client = await connectPg();
   try {
     return await client.query(text, params);
   } catch (error) {
-    console.error('Database query error:', error);
+    console.error("Database query error:", error);
     throw error;
   }
 }
