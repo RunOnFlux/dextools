@@ -1,161 +1,143 @@
 const { DateTime } = require("luxon");
-const dotenv = require("dotenv");
+const { query } = require("../../clients/pg");
 const { getSymbol } = require("../helper");
-const { connectPg } = require("../../clients/pg");
-dotenv.config();
 
-const getInterval = (interval) => {
-  switch (interval) {
-    case "1":
-      return "minute";
-    case "60":
-      return "hour";
-    case "1D":
-      return "day";
-    default:
-      return "day";
-  }
+const INTERVALS = {
+  1: "minute",
+  60: "hour",
+  "1D": "day",
 };
 
-const getIntervalValue = (interval) => {
-  switch (interval) {
-    case "15":
-      return 15;
-    case "30":
-      return 30;
-    default:
-      return 1;
-  }
+const CUSTOM_INTERVALS = {
+  15: 15,
+  30: 30,
 };
 
-const getHourBars = () => `
-SELECT
-  *
-FROM hour_candles
-WHERE 
-  ticker=$1 AND 
-  timestamp >= $2 AND 
-  timestamp < $3 
-ORDER by timestamp;
-`;
+const QUERIES = {
+  hourBars: `
+   SELECT *
+   FROM hour_candles
+   WHERE 
+     ticker = $1 AND 
+     timestamp >= $2 AND 
+     timestamp < $3 
+   ORDER BY timestamp
+ `,
 
-const getBarsQuery = (interval) => `
-SELECT
-  ticker,
-  date_trunc('${interval}', timestamp) as timestamp,
-  (array_agg(open ORDER BY timestamp))[1] as open,
-  MAX(high) as high,
-  MIN(low) as low,
-  (array_agg(close ORDER BY timestamp DESC))[1] as close,
-  SUM(volume) as volume
-FROM candles
-WHERE 
-  ticker=$1 AND 
-  timestamp >= $2 AND 
-  timestamp < $3 
-GROUP BY ticker, date_trunc('${interval}', timestamp)
-ORDER by timestamp;
-`;
+  standardBars: (interval) => `
+   SELECT
+     ticker,
+     date_trunc('${interval}', timestamp) as timestamp,
+     (array_agg(open ORDER BY timestamp))[1] as open,
+     MAX(high) as high,
+     MIN(low) as low,
+     (array_agg(close ORDER BY timestamp DESC))[1] as close,
+     SUM(volume) as volume
+   FROM candles
+   WHERE 
+     ticker = $1 AND 
+     timestamp >= $2 AND 
+     timestamp < $3 
+   GROUP BY ticker, date_trunc('${interval}', timestamp)
+   ORDER BY timestamp
+ `,
 
-const getBarsQueryCustom = (interval) => `
-SELECT
-  ticker,
-  date_trunc('hour', timestamp) + (((date_part('minute', timestamp)::INTEGER / ${interval}::INTEGER) * ${interval}::INTEGER) || ' minutes')::INTERVAL as timestamp,
-  (array_agg(open ORDER BY timestamp))[1] as open,
-  MAX(high) as high,
-  MIN(low) as low,
-  (array_agg(close ORDER BY timestamp DESC))[1] as close,
-  SUM(volume) as volume
-FROM candles
-WHERE 
-  ticker=$1 AND 
-  timestamp >= $2 AND 
-  timestamp < $3 
-GROUP BY ticker, date_trunc('hour', timestamp) + (((date_part('minute', timestamp)::INTEGER / ${interval}::INTEGER) * ${interval}::INTEGER) || ' minutes')::INTERVAL
-`;
+  customBars: (interval) => `
+   SELECT
+     ticker,
+     date_trunc('hour', timestamp) + (((date_part('minute', timestamp)::INTEGER / ${interval}::INTEGER) * ${interval}::INTEGER) || ' minutes')::INTERVAL as timestamp,
+     (array_agg(open ORDER BY timestamp))[1] as open,
+     MAX(high) as high,
+     MIN(low) as low,
+     (array_agg(close ORDER BY timestamp DESC))[1] as close,
+     SUM(volume) as volume
+   FROM candles
+   WHERE 
+     ticker = $1 AND 
+     timestamp >= $2 AND 
+     timestamp < $3 
+   GROUP BY ticker, date_trunc('hour', timestamp) + (((date_part('minute', timestamp)::INTEGER / ${interval}::INTEGER) * ${interval}::INTEGER) || ' minutes')::INTERVAL
+ `,
+};
 
-const getHistory = async (queryParams, signer) => {
-  const pgClient = await connectPg();
-  const { symbol, from, to, resolution, countback } = queryParams;
-  const { ticker } = getSymbol(symbol);
-  const interval = getInterval(resolution);
-  const plusObj = {};
-  plusObj[interval] = 1;
+const calculateTimeRange = ({ from, to, resolution, countback }) => {
+  const interval = INTERVALS[resolution] || "day";
   const fromDate = DateTime.fromSeconds(parseFloat(from)).startOf(interval);
   const toDate = DateTime.fromSeconds(parseFloat(to));
   const diff = toDate.startOf(interval).diff(fromDate, interval);
-  let queryFrom;
-  if (countback > diff[interval]) {
-    const minusObj = {};
-    minusObj[interval] = countback;
-    queryFrom = toDate.minus(minusObj).toJSDate();
-  } else {
-    queryFrom = fromDate.toJSDate();
-  }
 
-  // eslint-disable-next-line
-  const intervalValue = getIntervalValue(resolution);
-  let bars;
-  if (resolution === "60") {
-    bars = await pgClient.query(getHourBars(), [
-      ticker,
-      queryFrom,
-      toDate.toJSDate(),
-    ]);
-  } else if (intervalValue === 1) {
-    bars = await pgClient.query(getBarsQuery(interval), [
-      ticker,
-      queryFrom,
-      toDate.toJSDate(),
-    ]);
-  } else {
-    bars = await pgClient.query(getBarsQueryCustom(intervalValue), [
-      ticker,
-      queryFrom,
-      toDate.toJSDate(),
-    ]);
-  }
-  if (bars.rowCount === 0) {
+  if (countback > diff[interval]) {
     return {
-      statusCode: 200,
-      body: JSON.stringify({
-        t: [],
-        c: [],
-        o: [],
-        l: [],
-        h: [],
-        v: [],
-        s: "no_data",
-      }),
+      from: toDate.minus({ [interval]: countback }).toJSDate(),
+      to: toDate.toJSDate(),
     };
   }
-  const barsResponse = bars.rows.reduce(
-    (p, bar) => {
-      p.t.push(DateTime.fromJSDate(bar.timestamp).toSeconds());
-      p.c.push(bar.close);
-      p.o.push(bar.open);
-      p.l.push(bar.low);
-      p.h.push(bar.high);
-      p.v.push(bar.volume);
-      return p;
-    },
-    {
+
+  return {
+    from: fromDate.toJSDate(),
+    to: toDate.toJSDate(),
+  };
+};
+
+const formatBarsResponse = (bars) => {
+  if (!bars.length) {
+    return {
       t: [],
       c: [],
       o: [],
       l: [],
       h: [],
       v: [],
-    }
+      s: "no_data",
+    };
+  }
+
+  const response = bars.reduce(
+    (acc, bar) => {
+      acc.t.push(DateTime.fromJSDate(bar.timestamp).toSeconds());
+      acc.c.push(bar.close);
+      acc.o.push(bar.open);
+      acc.l.push(bar.low);
+      acc.h.push(bar.high);
+      acc.v.push(bar.volume);
+      return acc;
+    },
+    { t: [], c: [], o: [], l: [], h: [], v: [] }
   );
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      s: "ok",
-      ...barsResponse,
-    }),
-  };
+  return { s: "ok", ...response };
+};
+
+const getHistory = async (queryParams) => {
+  const { symbol, resolution } = queryParams;
+  const { ticker } = getSymbol(symbol);
+  const timeRange = calculateTimeRange(queryParams);
+
+  const intervalValue = CUSTOM_INTERVALS[resolution] || 1;
+  let bars;
+
+  if (resolution === "60") {
+    bars = await query(QUERIES.hourBars, [
+      ticker,
+      timeRange.from,
+      timeRange.to,
+    ]);
+  } else if (intervalValue === 1) {
+    const interval = INTERVALS[resolution] || "day";
+    bars = await query(QUERIES.standardBars(interval), [
+      ticker,
+      timeRange.from,
+      timeRange.to,
+    ]);
+  } else {
+    bars = await query(QUERIES.customBars(intervalValue), [
+      ticker,
+      timeRange.from,
+      timeRange.to,
+    ]);
+  }
+
+  return formatBarsResponse(bars.rows);
 };
 
 module.exports = getHistory;

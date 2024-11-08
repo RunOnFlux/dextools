@@ -34,9 +34,9 @@ const asyncHandler = (fn) => async (req, res, next) => {
   }
 };
 
-app.get("/config", asyncHandler(getConfig));
-app.get("/symbols", asyncHandler(getSymbols));
-app.get("/history", asyncHandler(getHistory));
+app.get("/udf/config", asyncHandler(getConfig));
+app.get("/udf/symbols", asyncHandler(getSymbols));
+app.get("/udf/history", asyncHandler(getHistory));
 
 app.get("/api/account-balance-chart", asyncHandler(getAccountBalanceChart));
 app.get(
