@@ -1,6 +1,7 @@
 const { Client } = require("pg");
 
 let client = null;
+let chainwebClient = null;
 
 function connectPg() {
   if (!client) {
@@ -16,10 +17,28 @@ function connectPg() {
   return client;
 }
 
+function connectChainwebPg() {
+  if (!chainwebClient) {
+    chainwebClient = new Client({
+      host: process.env.CHAINWEB_DB_HOST,
+      database: process.env.CHAINWEB_DB_NAME,
+      user: process.env.CHAINWEB_DB_USER,
+      password: process.env.CHAINWEB_DB_PASSWORD,
+      ssl: false,
+    });
+    chainwebClient.connect();
+  }
+  return chainwebClient;
+}
+
 async function closePg() {
   if (client) {
-    await client.close();
+    await client.end();
     client = null;
+  }
+  if (chainwebClient) {
+    await chainwebClient.end();
+    chainwebClient = null;
   }
 }
 
@@ -33,8 +52,20 @@ async function query(text, params) {
   }
 }
 
+async function chainwebQuery(text, params) {
+  const client = await connectChainwebPg();
+  try {
+    return await client.query(text, params);
+  } catch (error) {
+    console.error("Chainweb database query error:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   connectPg,
+  connectChainwebPg,
   closePg,
   query,
+  chainwebQuery,
 };

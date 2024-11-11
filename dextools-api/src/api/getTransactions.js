@@ -1,11 +1,12 @@
 const { DateTime } = require("luxon");
-const { getTickerFromID, getAllPairs, getPGClient } = require("../helper");
+const { connectPg } = require("../../clients/pg");
+const { getTickerFromID, getAllPairs } = require("../helper");
 
 const dotenv = require("dotenv");
 dotenv.config();
 
-const getTransactions = async (queryParams, signer) => {
-  const pgClient = await getPGClient(signer, 2)
+const getTransactions = async (queryParams) => {
+  const pgClient = await connectPg();
   try {
     const { id, fromTime, toTime, limit, exchange } = queryParams;
 
@@ -35,11 +36,13 @@ const getTransactions = async (queryParams, signer) => {
     const allPairs = await getAllPairs();
     const actualLimit = limit && limit < 100 ? limit : 100;
     const ticker = getTickerFromID(id);
-    const pair =   allPairs[ticker] ? allPairs[ticker] : null;
+    const pair = allPairs[ticker] ? allPairs[ticker] : null;
     if (!pair) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: `ID: ${id} error: token ${ticker} not found` }),
+        body: JSON.stringify({
+          error: `ID: ${id} error: token ${ticker} not found`,
+        }),
       };
     }
     const { address } = pair.token0;
@@ -62,7 +65,7 @@ const getTransactions = async (queryParams, signer) => {
       return {
         statusCode: 200,
         body: JSON.stringify([]),
-      }
+      };
     }
     const txTo = DateTime.fromJSDate(transactionsInPage.rows[0].timestamp)
       .startOf("minute")
@@ -146,7 +149,7 @@ const getTransactions = async (queryParams, signer) => {
     return {
       statusCode: 200,
       body: JSON.stringify(transactions),
-    }
+    };
   } catch (e) {
     console.log(e.message);
     return {

@@ -69,7 +69,6 @@ const getTokens = async () => {
     typeof result.cachedValue === "string"
       ? parse(result.cachedValue)
       : result.cachedValue;
-
   return Object.keys(tokens).map((k) => tokens[k]);
 };
 
