@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { DynamoDB } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocument } = require('@aws-sdk/lib-dynamodb');
-const { MongoClient } = require('mongodb');
+const { mongoConnect } = require('../clients/mongo');
 
 const dynamodb = new DynamoDB({
   region: 'us-east-1',
@@ -12,9 +12,6 @@ const dynamodb = new DynamoDB({
 });
 
 const ddbDoc = DynamoDBDocument.from(dynamodb);
-
-const mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:27017/${process.env.MONGO_DB}?authSource=admin`;
-const dbName = process.env.MONGO_DB || 'dextools';
 
 const TABLES = [
   {
@@ -114,12 +111,8 @@ async function createIndexes(collection, indexes) {
 }
 
 async function migrateData() {
-  const mongoClient = new MongoClient(mongoUrl);
-
   try {
-    await mongoClient.connect();
-    console.log('Connected to MongoDB');
-    const db = mongoClient.db(dbName);
+    const { db } = mongoConnect();
 
     for (const table of TABLES) {
       console.log(`\nMigrating ${table.dynamo} to ${table.mongo}...`);

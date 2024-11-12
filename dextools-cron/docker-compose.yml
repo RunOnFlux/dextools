@@ -5,22 +5,38 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      # PostgreSQL
       - PGHOST=dextools-postgres
       - PGUSER=${POSTGRES_USER}
       - PGPASSWORD=${POSTGRES_PASSWORD}
       - PGDATABASE=${POSTGRES_DB}
       - PGPORT=5432
-      # MongoDB
-      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@dextools-mongodb:27017/${MONGO_DB}?authSource=admin
-      # App
-      - NODE_ENV=${NODE_ENV:-development}
+
+      - MONGO_HOST=dextools-mongodb
+      - MONGO_DB=${MONGO_DB}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+
+      - NODE_ENV=production
       - TZ=Etc/UTC
-    volumes:
-      - .:/app
-      - /app/node_modules
+
+      - CHAINWEB_DB_HOST=${CHAINWEB_DB_HOST}
+      - CHAINWEB_DB_NAME=${CHAINWEB_DB_NAME}
+      - CHAINWEB_DB_USER=${CHAINWEB_DB_USER}
+      - CHAINWEB_DB_PASSWORD=${CHAINWEB_DB_PASSWORD}
+      - CHAINWEB_DB_SSL=true
     networks:
       - dextools_network
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('fs').accessSync('/app/node_modules')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   dextools_network:

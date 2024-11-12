@@ -37,7 +37,6 @@ const asyncHandler = (fn) => async (req, res, next) => {
 app.get("/udf/config", asyncHandler(getConfig));
 app.get("/udf/symbols", asyncHandler(getSymbols));
 app.get("/udf/history", asyncHandler(getHistory));
-// app.get("/test", asyncHandler(pairsUpdater));
 
 app.get("/api/account-balance-chart", asyncHandler(getAccountBalanceChart));
 app.get(

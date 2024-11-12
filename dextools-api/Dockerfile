@@ -2,11 +2,18 @@ FROM node:16-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+
+ENV TZ="Etc/UTC"
+ENV NODE_ENV="production"
+
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
 COPY . .
 
-EXPOSE 3000
+USER node
+
+EXPOSE ${PORT}
 
 CMD ["npm", "start"]
