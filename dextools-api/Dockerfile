@@ -2,7 +2,6 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-# Timezone setup for Alpine
 RUN apk add --no-cache tzdata
 
 ENV TZ="Etc/UTC"
@@ -15,4 +14,6 @@ COPY . .
 
 USER node
 
-CMD ["node", "index.js"]
+EXPOSE ${PORT}
+
+CMD ["npm", "start"]

@@ -1,18 +1,10 @@
-const { getPGClient } = require("../helper");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
-const { parse } = require("zipson/lib");
+const { query } = require("../../clients/pg");
+const { mongoConnect } = require("../../clients/mongo");
+const { parse } = require("zipson");
 
-const dotenv = require("dotenv");
-dotenv.config();
+const getPerformanceSummary = async (queryParams) => {
+  const interval = queryParams.interval || "1D";
 
-const ddbClient = new DynamoDBClient({
-  region: "us-east-1",
-  endpoint: process.env.AWS_ENDPOINT || undefined,
-});
-
-const getPerformanceSummary = async (interval = "1D", signer) => {
-  const client = await getPGClient(signer, 2);
   let intervalQuery;
   switch (interval.toUpperCase()) {
     case "1D":
@@ -28,85 +20,81 @@ const getPerformanceSummary = async (interval = "1D", signer) => {
       intervalQuery = "timestamp > NOW() - INTERVAL '1 year'";
       break;
     default:
-      return {
-        statusCode: 400,
-        body: "Invalid interval parameter. Use 1D, 1W, 1M or 1Y.",
-      };
+      throw new Error("Invalid interval parameter. Use 1D, 1W, 1M or 1Y.");
   }
 
   const queryNonKDA = `
-    SELECT
-      ticker,
-      MIN(timestamp) as open_time,
-      MAX(timestamp) as close_time,
-      (array_agg(open ORDER BY timestamp ASC))[1] as open,
-      (array_agg(close ORDER BY timestamp DESC))[1] as close,
-      MIN(low) as low,
-      MAX(high) as high,
-      SUM(volume) as volume
-    FROM
-      hour_candles
-    WHERE
-      ${intervalQuery}
-    GROUP BY
-      ticker
-  `;
+   SELECT
+     ticker,
+     MIN(timestamp) as open_time,
+     MAX(timestamp) as close_time,
+     (array_agg(open ORDER BY timestamp ASC))[1] as open,
+     (array_agg(close ORDER BY timestamp DESC))[1] as close,
+     MIN(low) as low,
+     MAX(high) as high,
+     SUM(volume) as volume
+   FROM
+     hour_candles
+   WHERE
+     ${intervalQuery}
+   GROUP BY
+     ticker
+ `;
 
   const queryKDA = `
-    SELECT
-      'KDA' as ticker,
-      MIN(timestamp) as open_time,
-      MAX(timestamp) as close_time,
-      (array_agg(price ORDER BY timestamp ASC))[1] as open,
-      (array_agg(price ORDER BY timestamp DESC))[1] as close,
-      MIN(price) as low,
-      MAX(price) as high
-    FROM
-      kda_price
-    WHERE
-      ${intervalQuery}
-  `;
+   SELECT
+     'KDA' as ticker,
+     MIN(timestamp) as open_time,
+     MAX(timestamp) as close_time,
+     (array_agg(price ORDER BY timestamp ASC))[1] as open,
+     (array_agg(price ORDER BY timestamp DESC))[1] as close,
+     MIN(price) as low,
+     MAX(price) as high
+   FROM
+     kda_price
+   WHERE
+     ${intervalQuery}
+ `;
 
   const queryTransactionsCount = `
-  WITH unified_tokens AS (
-        SELECT
-          timestamp,
-          from_token AS ticker
-        FROM transactions
-        WHERE
-          ${intervalQuery}
-        
-        UNION ALL
-      
-        SELECT
-          timestamp,
-          to_token AS ticker
-        FROM transactions
-        WHERE
-          ${intervalQuery}
-      )
-  
-  SELECT
-    ticker,
-    COUNT(*) AS transaction_count
-  FROM unified_tokens
-  GROUP BY ticker
-  ORDER BY ticker;  
-  `;
+ WITH unified_tokens AS (
+       SELECT
+         timestamp,
+         from_token AS ticker
+       FROM transactions
+       WHERE
+         ${intervalQuery}
+       
+       UNION ALL
+     
+       SELECT
+         timestamp,
+         to_token AS ticker
+       FROM transactions
+       WHERE
+         ${intervalQuery}
+     )
+ 
+ SELECT
+   ticker,
+   COUNT(*) AS transaction_count
+ FROM unified_tokens
+ GROUP BY ticker
+ ORDER BY ticker;  
+ `;
 
   try {
-    const resNonKDA = await client.query(queryNonKDA);
-    const resKDA = await client.query(queryKDA);
-    const resTransactionCount = await client.query(queryTransactionsCount);
+    const [resNonKDA, resKDA, resTransactionCount] = await Promise.all([
+      query(queryNonKDA),
+      query(queryKDA),
+      query(queryTransactionsCount),
+    ]);
 
-    const storedTokens = await ddbClient.send(
-      new ScanCommand({
-        TableName: process.env.TOKENS_TABLE,
-      })
-    );
-    const tokensData = parse(storedTokens?.Items[0]?.cachedValue);
+    const { db } = await mongoConnect();
+    const tokensDoc = await db.collection("tokens").findOne({ id: "TOKENS" });
+    const tokensData = tokensDoc ? parse(tokensDoc.cachedValue) : null;
 
-    const results = {
+    return {
       tickers: [
         ...resNonKDA.rows.map((row) => {
           const tokenModuleName = Object.keys(tokensData).find(
@@ -132,21 +120,9 @@ const getPerformanceSummary = async (interval = "1D", signer) => {
         })),
       ],
     };
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
   } catch (error) {
-    console.error("Failed to fetch data:", error);
-    await client.end();
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: "Internal Server Error" }),
-    };
+    console.error("Failed to fetch performance summary:", error);
+    throw error;
   }
 };
 
