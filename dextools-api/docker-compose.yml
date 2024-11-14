@@ -3,7 +3,7 @@ services:
     container_name: dextools-api
     build: .
     ports:
-      - "127.0.0.1:${PORT}:${PORT}"
+      - "0.0.0.0:${PORT}:${PORT}"
     environment:
       - NODE_ENV=production
       - PORT=${PORT}
