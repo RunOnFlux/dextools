@@ -28,7 +28,7 @@ app.use(express.json());
 const asyncHandler = (fn) => async (req, res, next) => {
   try {
     const result = await fn(req.query, req.body, req.headers);
-    res.json({ success: true, data: result });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -48,6 +48,30 @@ app.get("/api/pairs", asyncHandler(getPairs));
 app.get("/api/transactions", asyncHandler(getTransactions));
 app.post("/api/fiat-on-ramp/quote", asyncHandler(getQuote));
 app.get("/api/fiat-on-ramp/currencies", asyncHandler(getFiatCurrencyLimits));
+
+app.get("/health", async (req, res) => {
+  try {
+    const { query } = require("./clients/pg");
+    await query("SELECT 1");
+
+    const { mongoConnect, mongoCloseConnection } = require("./clients/mongo");
+    const { db } = await mongoConnect();
+    await db.command({ ping: 1 });
+    await mongoCloseConnection();
+
+    res.json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(503).json({
+      status: "unhealthy",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
 
 cron.schedule("*/5 * * * *", async () => {
   try {
