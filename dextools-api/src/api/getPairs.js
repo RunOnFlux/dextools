@@ -33,9 +33,7 @@ const getPairs = async (queryParams = {}) => {
       .sort(
         (tokenA, tokenB) => tokenB[getSortKey(sort)] - tokenA[getSortKey(sort)]
       );
-    result.statusCode = 200;
-    result.body = JSON.stringify(pairs);
-    return result;
+    return pairs;
   }
 
   if (id && exchange) {
@@ -49,12 +47,9 @@ const getPairs = async (queryParams = {}) => {
     }
     const ticker = getTickerFromID(id);
     const pair = allPairs[ticker] ? allPairs[ticker] : null;
-
-    result.body = JSON.stringify(
-      pair ? pair : { error: `dex: ${dex} ticker: ${ticker} does not exist` }
-    );
-    result.statusCode = pair ? 200 : 400;
-    return result;
+    return pair
+      ? pair
+      : { error: `dex: ${dex} ticker: ${ticker} does not exist` };
   }
   return result;
 };
