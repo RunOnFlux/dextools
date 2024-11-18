@@ -45,24 +45,24 @@ const kdaPriceUpdate = async () => {
   currMinute.setMilliseconds(0);
 
   let done = false;
-  while (retryTimes < 5) {
-    try {
-      console.log('getting kda price');
-      const kdaPrice = await getLatestFromGate();
-      console.log('price is ' + kdaPrice);
-      const values = [currMinute, kdaPrice];
-      console.log(`adding values to postgres, ${currMinute}`);
-      await client.query(insertQuery, values);
-      done = true;
-      console.log(`added`);
-      break;
-    } catch (e) {
-      console.log(e);
-      retryTimes += 1;
-      await new Promise((r) => setTimeout(r, 1000));
-      console.log('FAILED TO UPDATEe, RETRYING ' + retryTimes + ' times');
-    }
-  }
+  // while (retryTimes < 5) {
+  //   try {
+  //     console.log('getting kda price');
+  //     const kdaPrice = await getLatestFromGate();
+  //     console.log('price is ' + kdaPrice);
+  //     const values = [currMinute, kdaPrice];
+  //     console.log(`adding values to postgres, ${currMinute}`);
+  //     await client.query(insertQuery, values);
+  //     done = true;
+  //     console.log(`added`);
+  //     break;
+  //   } catch (e) {
+  //     console.log(e);
+  //     retryTimes += 1;
+  //     await new Promise((r) => setTimeout(r, 1000));
+  //     console.log('FAILED TO UPDATEe, RETRYING ' + retryTimes + ' times');
+  //   }
+  // }
 
   if (!done) {
     while (retryTimes < 10) {
