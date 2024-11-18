@@ -49,7 +49,7 @@ const updateAccountsBalance = async () => {
   try {
     const { db } = await mongoConnect();
     const lastTokenPrices = await getAllTickerLastPrices();
-    console.log('Token prices fetched');
+    console.log('Token prices fetched', lastTokenPrices);
     // Fetch tokens data from MongoDB
     const tokensData = await db.collection(TOKENS_COLLECTION).findOne({});
     const tokensCached = tokensData ? parse(tokensData.cachedValue) : {};
@@ -110,11 +110,14 @@ const updateAccountsBalance = async () => {
                   const balances = Object.keys(res?.result?.data[accountString]).map((token) => {
                     const balance = getReserve(res?.result?.data[accountString][token]);
                     const price = getTokenPriceByModuleName(token);
+                    if (isNaN(price)) {
+                      console.log(`ERROR PRICE NaN for token: ${token}`);
+                    }
                     const usdBalance = parseFloat((balance * parseFloat(price)).toFixed(2));
                     return {
                       token,
                       balance,
-                      price,
+                      price: price ?? 0,
                       usdBalance,
                     };
                   });
