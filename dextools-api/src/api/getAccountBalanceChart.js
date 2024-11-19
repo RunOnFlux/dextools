@@ -47,6 +47,16 @@ const verifyAndAddAccount = async (account, xSignature) => {
 };
 
 const fillMissingDates = (items, getFullData) => {
+  let lastValidValue = 0;
+  items = items.map((item) => {
+    if (item.totalUsdValue === null) {
+      item.totalUsdValue = lastValidValue;
+    } else {
+      lastValidValue = item.totalUsdValue;
+    }
+    return item;
+  });
+
   const dateMap = items.reduce((acc, item) => {
     acc[item.date] = item;
     return acc;
