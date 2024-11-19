@@ -49,7 +49,11 @@ const verifyAndAddAccount = async (account, xSignature) => {
 const fillMissingDates = (items, getFullData) => {
   let lastValidValue = 0;
   items = items.map((item) => {
-    if (item.totalUsdValue === null) {
+    if (
+      item.totalUsdValue === null ||
+      item.totalUsdValue === undefined ||
+      isNaN(item.totalUsdValue)
+    ) {
       item.totalUsdValue = lastValidValue;
     } else {
       lastValidValue = item.totalUsdValue;
