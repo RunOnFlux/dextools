@@ -1,8 +1,6 @@
-FROM node:20-alpine3.19
+FROM node:20-slim
 
 WORKDIR /app
-
-RUN apk add --no-cache tzdata
 
 ENV TZ="Etc/UTC"
 ENV NODE_ENV="production"
