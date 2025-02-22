@@ -6,7 +6,7 @@ ENV TZ="Etc/UTC"
 ENV NODE_ENV="production"
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production --verbose
 
 COPY . .
 
