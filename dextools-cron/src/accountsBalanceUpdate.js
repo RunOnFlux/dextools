@@ -76,8 +76,9 @@ const updateAccountsBalance = async () => {
         }, {});
 
         const chainPromises = Array.from({ length: KADENA_CHAINS_COUNT }, async (_, chainId) => {
-          const tokens = await getStoredKadenaTokensByChain(chainId);
-
+          let tokens = await getStoredKadenaTokensByChain(chainId);
+          const isValidPactString = (str) => /^[a-zA-Z0-9._-]+$/.test(str);
+          tokens = tokens.filter((token) => isValidPactString(token));
           const getTokenAlias = (tokenName) => tokenName.replace(/\./g, '');
 
           const pactCode = `
@@ -135,6 +136,7 @@ const updateAccountsBalance = async () => {
           } catch (err) {
             console.error(`ERROR on chain ${chainId}`);
             console.log(err);
+            console.log(err.stack);
           }
         });
 
