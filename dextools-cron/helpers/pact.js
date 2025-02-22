@@ -31,7 +31,7 @@ const makePactCallWithFallback = async (chainId, pactCode, gasLimit, urlIndex = 
     .local(makeCMD(chainId, pactCode, gasLimit), chainwebUrl)
     .then((data) => {
       if (data.result && data.result.status) {
-        console.log(`Success: ${chainwebUrl}`);
+        // console.log(`Success: ${chainwebUrl}`);
         return data;
       }
       throw new Error(`failed to fetch from ${chainwebUrl}`);
