@@ -11,6 +11,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY . .
+COPY public ./public
 
 USER node
 

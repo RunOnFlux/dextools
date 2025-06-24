@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -16,6 +17,7 @@ const getConfig = require("./src/udf/getConfig");
 const getSymbols = require("./src/udf/getSymbols");
 const getHistory = require("./src/udf/getHistory");
 const { getQuote, getFiatCurrencyLimits } = require("./src/api/fiatOnRamp");
+const { getTokenIcon } = require("./src/api/getTokenIcon");
 
 const app = express();
 
@@ -24,6 +26,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(compression());
 app.use(express.json());
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 const asyncHandler = (fn) => async (req, res, next) => {
   try {
@@ -48,6 +51,48 @@ app.get("/api/pairs", asyncHandler(getPairs));
 app.get("/api/transactions", asyncHandler(getTransactions));
 app.post("/api/fiat-on-ramp/quote", asyncHandler(getQuote));
 app.get("/api/fiat-on-ramp/currencies", asyncHandler(getFiatCurrencyLimits));
+
+app.get("/api/token-icon", async (req, res, next) => {
+  try {
+    const result = await getTokenIcon(req.query);
+
+    if (!result.success) {
+      return res.status(404).json({ error: "Icon not found" });
+    }
+
+    const ext = path.extname(result.iconPath).toLowerCase();
+    const mimeTypes = {
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".svg": "image/svg+xml",
+      ".webp": "image/webp",
+      ".gif": "image/gif",
+    };
+
+    const mimeType = mimeTypes[ext] || "image/png";
+    const fileName = path.basename(result.iconPath);
+    const tokenName = result.token.includes(".")
+      ? result.token.split(".").pop()
+      : result.token;
+
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${tokenName}-icon${ext}"`
+    );
+
+    if (result.fallback) {
+      res.setHeader("X-Fallback", "true");
+    }
+
+    res.sendFile(result.iconPath);
+  } catch (error) {
+    console.error("Error serving token icon:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.get("/health", async (req, res) => {
   try {

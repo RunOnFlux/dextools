@@ -1,0 +1,41 @@
+const tokenIconsMap = {
+  coin: "kadena.svg",
+  "kaddex.kdx": "kdx.svg",
+  "n_dd05101ff4df21179bfc038a912fc88c38d777a1.kdx": "kdx.svg",
+  "hypercent.prod-hype-coin": "hypercent.svg",
+  "runonflux.flux": "flux.png",
+  "kdlaunch.token": "kdl.svg",
+  "free.babena": "babena.svg",
+  "free.anedak": "anedak.svg",
+  "mok.token": "mok.png",
+  "lago.kwUSDC": "usdc.png",
+  "kaddex.skdx": "skdx.png",
+  "free.jodie-token": "jodie.svg",
+  "lago.kwBTC": "kwbtc.svg",
+  "free.kapybara-token": "kapy.svg",
+  "free.docu": "docushield.svg",
+  "free.kishu-ken": "kishuken.png",
+  "kdlaunch.kdswap-token": "kdl.svg",
+  "arkade.token": "arkade.png",
+  "free.KAYC": "kayc.svg",
+  "free.wiza": "wizz.svg",
+  "free.crankk01": "crankk.png",
+  "free.corona-token": "corona.svg",
+  "free.maga": "maga-token.png",
+  "free.finux": "finux.png",
+  "n_b742b4e9c600892af545afb408326e82a6c0c6ed.zUSD": "usdc.png",
+  "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron": "heron-token.png",
+  "n_582fed11af00dc626812cd7890bb88e72067f28c.bro": "bro.png",
+  "n_518dfea5f0d2abe95cbcd8956eb97f3238e274a9.AZUKI": "azuki_logo.png",
+  "free.cyberfly_token": "cfly-logo.svg",
+  "n_ebe54249b2e9d68f5060961f3c419f8288d18dc2.unitt": "unitt.png",
+};
+
+function extractTokenName(tokenContract) {
+  if (tokenContract.includes(".")) {
+    return tokenContract.split(".").pop();
+  }
+  return tokenContract;
+}
+
+module.exports = { tokenIconsMap, extractTokenName };
