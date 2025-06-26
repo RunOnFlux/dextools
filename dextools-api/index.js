@@ -21,8 +21,23 @@ const { getTokenIcon } = require("./src/api/getTokenIcon");
 
 const app = express();
 
-app.use(cors());
-app.use(helmet());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: "*",
+    credentials: false,
+  })
+);
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: false,
+  })
+);
+
 app.use(morgan("dev"));
 app.use(compression());
 app.use(express.json());
@@ -31,6 +46,15 @@ app.use(
   express.static(path.join(__dirname, "public"), {
     setHeaders: (res, filePath) => {
       res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+      );
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
   })
 );
@@ -61,6 +85,14 @@ app.get("/api/fiat-on-ramp/currencies", asyncHandler(getFiatCurrencyLimits));
 
 app.get("/api/token-icon", async (req, res, next) => {
   try {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+    );
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
     const result = await getTokenIcon(req.query);
 
     if (!result.success) {
