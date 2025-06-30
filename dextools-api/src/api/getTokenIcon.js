@@ -1,6 +1,10 @@
 const path = require("path");
 const fs = require("fs").promises;
-const { tokenIconsMap, extractTokenName } = require("../helper/tokenMap");
+const {
+  tokenIconsMap,
+  extractTokenName,
+  tickersIconsMap,
+} = require("../helper/tokenMap");
 
 async function getTokenIcon(query) {
   const { token } = query;
@@ -10,8 +14,15 @@ async function getTokenIcon(query) {
   }
 
   const decodedToken = decodeURIComponent(token);
+  console.log("🚀 ~ getTokenIcon ~ decodedToken:", decodedToken);
 
   let iconFileName = tokenIconsMap[decodedToken];
+  console.log("🚀 ~ getTokenIcon ~ iconFileName:", iconFileName);
+
+  if (!iconFileName) {
+    iconFileName = tickersIconsMap[decodedToken.toLowerCase()];
+    console.log("🚀 ~ getTokenIcon ~ iconFileName:", iconFileName);
+  }
 
   if (!iconFileName) {
     const tokenName = extractTokenName(decodedToken);

@@ -23,12 +23,47 @@ const tokenIconsMap = {
   "free.corona-token": "corona.svg",
   "free.maga": "maga-token.png",
   "free.finux": "finux.png",
+  "free.ktoshi": "ktoshi.png",
   "n_b742b4e9c600892af545afb408326e82a6c0c6ed.zUSD": "usdc.png",
   "n_e309f0fa7cf3a13f93a8da5325cdad32790d2070.heron": "heron-token.png",
   "n_582fed11af00dc626812cd7890bb88e72067f28c.bro": "bro.png",
   "n_518dfea5f0d2abe95cbcd8956eb97f3238e274a9.AZUKI": "azuki_logo.png",
   "free.cyberfly_token": "cfly-logo.svg",
   "n_ebe54249b2e9d68f5060961f3c419f8288d18dc2.unitt": "unitt.png",
+};
+
+const tickersIconsMap = {
+  kda: "kadena.svg",
+  coin: "kadena.svg",
+  kdx: "kdx.svg",
+  hype: "hypercent.svg",
+  flux: "flux.png",
+  kdl: "kdl.svg",
+  babe: "babena.svg",
+  babena: "babena.svg",
+  anedak: "anedak.svg",
+  mok: "mok.png",
+  USDC: "usdc.png",
+  skdx: "skdx.png",
+  jodie: "jodie.svg",
+  kwBTC: "kwbtc.svg",
+  kapy: "kapy.svg",
+  docu: "docushield.svg",
+  kishk: "kishuken.png",
+  arkd: "arkade.png",
+  kayc: "kayc.svg",
+  wiza: "wizz.svg",
+  crakk: "crankk.png",
+  crna: "corona.svg",
+  maga: "maga-token.png",
+  finux: "finux.png",
+  zUSD: "usdc.png",
+  heron: "heron-token.png",
+  bro: "bro.png",
+  AZUKI: "azuki_logo.png",
+  cfly: "cfly-logo.svg",
+  unitt: "unitt.png",
+  kto: "ktoshi.png",
 };
 
 function extractTokenName(tokenContract) {
@@ -38,4 +73,4 @@ function extractTokenName(tokenContract) {
   return tokenContract;
 }
 
-module.exports = { tokenIconsMap, extractTokenName };
+module.exports = { tickersIconsMap, tokenIconsMap, extractTokenName };
