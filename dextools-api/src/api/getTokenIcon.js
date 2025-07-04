@@ -36,7 +36,7 @@ async function getTokenIcon(query) {
     process.cwd(),
     "public",
     "token-icons",
-    "default.svg"
+    "default.png"
   );
 
   try {
@@ -52,7 +52,7 @@ async function getTokenIcon(query) {
       await fs.access(defaultIconPath);
       return {
         success: true,
-        iconUrl: "/public/token-icons/default.svg",
+        iconUrl: "/public/token-icons/default.png",
         iconPath: defaultIconPath,
         token: decodedToken,
         fallback: true,
