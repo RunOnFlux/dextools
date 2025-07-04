@@ -14,14 +14,11 @@ async function getTokenIcon(query) {
   }
 
   const decodedToken = decodeURIComponent(token);
-  console.log("🚀 ~ getTokenIcon ~ decodedToken:", decodedToken);
 
   let iconFileName = tokenIconsMap[decodedToken];
-  console.log("🚀 ~ getTokenIcon ~ iconFileName:", iconFileName);
 
   if (!iconFileName) {
     iconFileName = tickersIconsMap[decodedToken.toLowerCase()];
-    console.log("🚀 ~ getTokenIcon ~ iconFileName:", iconFileName);
   }
 
   if (!iconFileName) {
