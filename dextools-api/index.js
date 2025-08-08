@@ -10,6 +10,7 @@ const cron = require("node-cron");
 const pairsUpdater = require("./src/updater/pairsUpdater");
 const getAccountBalanceChart = require("./src/api/getAccountBalanceChart");
 const getAccountTransactionHistory = require("./src/api/getAccountTransactionHistory");
+const getAccountTransactionHistoryGraphQL = require("./src/api/getAccountTransactionHistoryGraphQL");
 const getPerformanceSummary = require("./src/api/getPerformanceSummary");
 const getPairs = require("./src/api/getPairs");
 const getTransactions = require("./src/api/getTransactions");
@@ -76,6 +77,10 @@ app.get("/api/account-balance-chart", asyncHandler(getAccountBalanceChart));
 app.get(
   "/api/account-transaction-history",
   asyncHandler(getAccountTransactionHistory)
+);
+app.get(
+  "/api/account-transaction-history-graphql",
+  asyncHandler(getAccountTransactionHistoryGraphQL)
 );
 app.get("/api/performance-summary", asyncHandler(getPerformanceSummary));
 app.get("/api/pairs", asyncHandler(getPairs));
