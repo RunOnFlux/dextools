@@ -27,13 +27,14 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
     let cursor = null;
     let allTransactions = [];
     let hasNextPage = true;
+    let totalFetched = 0;
+    let targetFetchCount = Number(skip) + Number(limit);
 
-    const fetchLimit =
-      skip > 0 ? Math.max(limit + skip, 100) : Math.min(limit, 100);
-    while (hasNextPage && allTransactions.length < fetchLimit) {
+    while (hasNextPage && totalFetched < targetFetchCount) {
+      const chunkSize = Math.min(50, targetFetchCount - totalFetched);
       const data = await client.request(GET_ACCOUNT_TRANSACTIONS, {
         accountName: account,
-        first: Math.min(100, fetchLimit - allTransactions.length),
+        first: chunkSize,
         after: cursor,
       });
 
@@ -42,12 +43,18 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
       }
 
       const edges = data.transfers.edges;
+      if (edges.length === 0) {
+        break;
+      }
+
       allTransactions.push(...edges);
+      totalFetched += edges.length;
 
       hasNextPage = data.transfers.pageInfo.hasNextPage;
       cursor = data.transfers.pageInfo.endCursor;
 
-      if (!hasNextPage || edges.length === 0) {
+      if (totalFetched >= 10000) {
+        console.warn("Reached maximum fetch limit of 10000 transactions");
         break;
       }
     }
@@ -59,10 +66,6 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
     const { db } = await mongoConnect();
     const tokensDoc = await db.collection("tokens").findOne({ id: "TOKENS" });
     const tokensData = tokensDoc ? parse(tokensDoc.cachedValue) : null;
-    console.log(
-      "🚀 ~ getAccountTransactionHistoryGraphQL ~ tokensData:",
-      tokensData
-    );
 
     let transactions = allTransactions
       .map((edge) => edge.node)
@@ -101,7 +104,7 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
           ticker = tx.moduleName?.split(".")[1].toUpperCase();
         }
 
-        let transactionType = "???";
+        let transactionType = "TRANSFER";
         const code = tx.transaction?.cmd?.payload?.code || "";
         if (
           code.includes("coin.transfer") ||
@@ -120,14 +123,11 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
           direction = "OUT";
         }
 
-        const status = tx.transaction?.result?.error ? "FAIL" : "SUCCESS";
+        const status = tx.transaction?.result?.goodResult ? "SUCCESS" : "FAIL";
         const continuation = tx.transaction?.result?.continuation
           ? JSON.parse(tx.transaction?.result?.continuation)
           : null;
-        console.log(
-          "🚀 ~ getAccountTransactionHistoryGraphQL ~ continuation:",
-          continuation
-        );
+
         const targetChainId =
           continuation?.step === 0
             ? continuation?.yield?.provenance?.targetChainId
@@ -145,7 +145,7 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
           code: tx.transaction?.cmd?.payload?.code
             ? JSON.parse(tx.transaction?.cmd?.payload?.code)
             : null,
-          error: null,
+          error: tx.transaction?.result?.badResult,
           creationtime: meta?.creationTime,
           gas: tx.transaction?.result?.gas,
           gaslimit: meta?.gasLimit,
@@ -161,11 +161,12 @@ const getAccountTransactionHistoryGraphQL = async (queryParams) => {
       transactions = transactions.slice(skip);
     }
 
-    transactions = transactions.slice(0, limit);
+    if (limit > 0) {
+      transactions = transactions.slice(0, limit);
+    }
 
     return transactions;
   } catch (error) {
-    console.log("🚀 ~ getAccountTransactionHistoryGraphQL ~ error:", error);
     console.error("Error in getAccountTransactionHistoryGraphQL:", error);
     throw error;
   }

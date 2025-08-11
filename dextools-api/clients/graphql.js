@@ -24,6 +24,7 @@ const GET_ACCOUNT_TRANSACTIONS = gql`
       }
       edges {
         node {
+          creationTime
           amount
           moduleName
           requestKey
@@ -37,6 +38,8 @@ const GET_ACCOUNT_TRANSACTIONS = gql`
                 }
                 gas
                 continuation
+                badResult
+                goodResult
               }
             }
             cmd {
