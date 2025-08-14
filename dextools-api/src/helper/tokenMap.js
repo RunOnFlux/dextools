@@ -30,6 +30,17 @@ const tokenIconsMap = {
   "n_518dfea5f0d2abe95cbcd8956eb97f3238e274a9.AZUKI": "azuki_logo.png",
   "free.cyberfly_token": "cfly-logo.png",
   "n_ebe54249b2e9d68f5060961f3c419f8288d18dc2.unitt": "unitt.png",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-ETH": "kb-eth.svg",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-USDC": "kb-usdc.svg",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-USDT": "kb-usdt.svg",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-WBTC": "kb-wbtc.png",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-ARB": "kb-arb.svg",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-POL": "kb-pol.png",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-TONCOIN": "kb-toncoin.svg",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-DAI": "kb-dai.svg",
+  "n_e98a056e3e14203e6ec18fada427334b21b667d8.cKDA": "ckda.svg",
+  "n_e98a056e3e14203e6ec18fada427334b21b667d8.cBTC": "cbtc.svg",
+  "n_e98a056e3e14203e6ec18fada427334b21b667d8.cLTC": "cltc.svg",
 };
 
 const tickersIconsMap = {
@@ -64,6 +75,17 @@ const tickersIconsMap = {
   cfly: "cfly-logo.png",
   unitt: "unitt.png",
   kto: "ktoshi.png",
+  "kb-eth": "kb-eth.svg",
+  "kb-wbtc": "kb-wbtc.png",
+  "kb-arb": "kb-arb.svg",
+  "kb-usdc": "kb-usdc.svg",
+  "kb-usdt": "kb-usdt.svg",
+  "kb-pol": "kb-pol.png",
+  "kb-ton": "kb-toncoin.svg",
+  "kb-dai": "kb-dai.svg",
+  cKDA: "ckda.svg",
+  cBTC: "cbtc.svg",
+  cLTC: "cltc.svg",
 };
 
 function extractTokenName(tokenContract) {
