@@ -76,12 +76,12 @@ app.get("/udf/history", asyncHandler(getHistory));
 app.get("/api/account-balance-chart", asyncHandler(getAccountBalanceChart));
 app.get(
   "/api/account-transaction-history",
-  asyncHandler(getAccountTransactionHistory)
-);
-app.get(
-  "/api/account-transaction-history-graphql",
   asyncHandler(getAccountTransactionHistoryGraphQL)
 );
+// app.get(
+//   "/api/account-transaction-history-graphql",
+//   asyncHandler(getAccountTransactionHistoryGraphQL)
+// );
 app.get("/api/performance-summary", asyncHandler(getPerformanceSummary));
 app.get("/api/pairs", asyncHandler(getPairs));
 app.get("/api/transactions", asyncHandler(getTransactions));
