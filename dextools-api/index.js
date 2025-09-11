@@ -78,10 +78,10 @@ app.get(
   "/api/account-transaction-history",
   asyncHandler(getAccountTransactionHistoryGraphQL)
 );
-// app.get(
-//   "/api/account-transaction-history-graphql",
-//   asyncHandler(getAccountTransactionHistoryGraphQL)
-// );
+app.get(
+  "/api/account-transaction-history-legacy",
+  asyncHandler(getAccountTransactionHistory)
+);
 app.get("/api/performance-summary", asyncHandler(getPerformanceSummary));
 app.get("/api/pairs", asyncHandler(getPairs));
 app.get("/api/transactions", asyncHandler(getTransactions));
