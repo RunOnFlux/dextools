@@ -75,8 +75,12 @@ app.get("/udf/history", asyncHandler(getHistory));
 
 app.get("/api/account-balance-chart", asyncHandler(getAccountBalanceChart));
 app.get(
-  "/api/account-transaction-history",
+  "/api/account-transaction-history-graphql",
   asyncHandler(getAccountTransactionHistoryGraphQL)
+);
+app.get(
+  "/api/account-transaction-history",
+  asyncHandler(getAccountTransactionHistory)
 );
 app.get(
   "/api/account-transaction-history-legacy",
