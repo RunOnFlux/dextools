@@ -41,7 +41,7 @@ const tokenIconsMap = {
   "n_e98a056e3e14203e6ec18fada427334b21b667d8.cKDA": "ckda.png",
   "n_e98a056e3e14203e6ec18fada427334b21b667d8.cBTC": "cbtc.png",
   "n_e98a056e3e14203e6ec18fada427334b21b667d8.cLTC": "cltc.png",
-  " n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-VATRENI": "vatreni.png",
+  "n_e595727b657fbbb3b8e362a05a7bb8d12865c1ff.kb-VATRENI": "vatreni.png",
 };
 
 const tickersIconsMap = {
