@@ -65,6 +65,15 @@ const candleUpdate = async () => {
   const endMinute = DateTime.now().startOf('minute');
   let startMinute = endMinute.minus({ minutes: 4 });
 
+  // candle_master is partitioned by month and an insert into a month without a partition fails.
+  // The before-insert trigger can't create it (rows are routed to a partition before triggers run),
+  // so create this month's and next month's partition ahead of time. cpine is a no-op when it exists.
+  await client.query(`SELECT cpine($1::timestamp), cpine($2::timestamp), cpine($3::timestamp)`, [
+    startMinute.toJSDate(),
+    endMinute.toJSDate(),
+    endMinute.plus({ months: 1 }).toJSDate(),
+  ]);
+
   // GET Tokens
   const tokenMap = await getAllTokensFromDB();
   const tokens = Object.keys(tokenMap);

@@ -16,6 +16,7 @@ const format = require('pg-format');
  * - Reads from 'candles' table (minute data)
  * - Writes to 'hour_candles' table
  * - Uses upsert: overwrites existing hourly candles if they exist
+ * - FROM=2026-02-01 limits it to hours from that date on (default: all history)
  */
 
 const mainClient = new Pool({
@@ -30,7 +31,8 @@ mainClient.connect();
 
 const getAndStore = async () => {
   console.log(`getting data`);
-  const d = await mainClient.query(`
+  const d = await mainClient.query(
+    `
   SELECT
     ticker,
     date_trunc('hour', timestamp) as timestamp,
@@ -40,9 +42,12 @@ const getAndStore = async () => {
     (array_agg(close ORDER BY timestamp DESC))[1] as close,
     SUM(volume) as volume
   FROM candles
+  WHERE timestamp >= $1
   GROUP BY ticker, date_trunc('hour', timestamp)
   ORDER by timestamp;
-  `);
+  `,
+    [process.env.FROM || '-infinity']
+  );
 
   console.log(`got ${d.rowCount}`);
   const candles = d.rows.map((c) => [c.ticker, c.timestamp, c.low, c.high, c.open, c.close, c.volume]);
@@ -58,4 +63,6 @@ const getAndStore = async () => {
 
 (async () => {
   await getAndStore();
+  // the pool keeps the process alive otherwise
+  process.exit(0);
 })();
